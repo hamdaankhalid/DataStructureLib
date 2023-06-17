@@ -6,6 +6,9 @@ struct DynamicArray {
     int capacity;
     int occupied;
     unsigned int sizeOfElement;
+	int (*hasher)(int, int); // hashing function that can take the key a
+							 // and current array capacity and give us an
+							 // index
 };
 
 

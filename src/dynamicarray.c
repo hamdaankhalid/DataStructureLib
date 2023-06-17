@@ -71,6 +71,8 @@ void removeElement(struct DynamicArray* arr, int index) {
     }
 }
 
+// slice and splice?
+
 void printData(struct DynamicArray* arr, void (*printElement)(void*)) {
     for (int i = 0; i < arr->occupied; i++) {
         printf("Element %d: ", i);
