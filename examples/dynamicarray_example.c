@@ -18,7 +18,7 @@ void printString(void* element) {
 int main() {
     struct DynamicArray arr;
 	
-	int init = newArray(&arr, sizeof (int));
+	int init = dynamicArrayNew(&arr, sizeof (int));
 	if (init == -1) {
 		return 1;
 	}
@@ -26,8 +26,9 @@ int main() {
     int num2 = 78;
     int num3 = 13;
 
-    addElement(&arr, &num1); addElement(&arr, &num2); addElement(&arr, &num3);
-    printData(&arr, printInt);
+    dynamicArrayAddElement(&arr, &num1); dynamicArrayAddElement(&arr, &num2); dynamicArrayAddElement(&arr, &num3);
+
+    dynamicArrayForEach(&arr, printInt);
 
     // Free memory
     for (int i = 0; i < arr.occupied; i++) {
@@ -40,24 +41,24 @@ int main() {
 		"567", "890", "001", "002", "003", "004"};
 	
     struct DynamicArray strArr;
-	int initStrArr = newArray(&strArr, strlen(test[0]) + 1);
+	int initStrArr = dynamicArrayNew(&strArr, strlen(test[0]) + 1);
 	if (initStrArr == -1) {
 		return 1;
 	}
 	
 	for (int i = 0; i < 15; i++) {
-		addElement(&strArr, test[i]);
+		dynamicArrayAddElement(&strArr, test[i]);
 	}
 
-    printData(&strArr, printString);
+    dynamicArrayForEach(&strArr, printString);
 	
 	// remove the 5th, 8th, 10th, 1st elements
 	int removals[5] = {2, 1, 4, 6, 10};
 	for (int i = 0; i < 5; i++) {
-		removeElement(&strArr, removals[i]);
+		dynamicArrayRemoveByIdx(&strArr, removals[i]);
 	}
 
-	printData(&strArr, printString);
+	dynamicArrayForEach(&strArr, printString);
 
 	// Free memory
     for (int i = 0; i < strArr.occupied; i++) {

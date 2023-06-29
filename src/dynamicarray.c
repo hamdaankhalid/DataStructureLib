@@ -3,7 +3,7 @@
 #include <string.h>
 #include <dynamicarray.h>
 
-int newArray(struct DynamicArray* arr, unsigned int sizeOfElement) {
+int dynamicArrayNew(struct DynamicArray* arr, unsigned int sizeOfElement) {
     if (!arr) {
         printf("Failed to allocate memory while creating the array\n");
         return -1;
@@ -21,7 +21,7 @@ int newArray(struct DynamicArray* arr, unsigned int sizeOfElement) {
 	return 0;
 }
 
-int addElement(struct DynamicArray* arr, void* element) {
+int dynamicArrayAddElement(struct DynamicArray* arr, void* element) {
     if (arr->occupied == arr->capacity) {
         void** newData = realloc(arr->data, arr->capacity * 2 * sizeof(void*));
         if (!newData) {
@@ -46,7 +46,7 @@ int addElement(struct DynamicArray* arr, void* element) {
 }
 
 
-void removeElement(struct DynamicArray* arr, int index) {
+void dynamicArrayRemoveByIdx(struct DynamicArray* arr, int index) {
     if (index < 0 || index >= arr->occupied) {
         printf("Invalid index\n");
         return;
@@ -73,10 +73,10 @@ void removeElement(struct DynamicArray* arr, int index) {
 
 // slice and splice?
 
-void printData(struct DynamicArray* arr, void (*printElement)(void*)) {
+void dynamicArrayForEach(struct DynamicArray* arr, void (*func)(void*)) {
     for (int i = 0; i < arr->occupied; i++) {
         printf("Element %d: ", i);
-        printElement(arr->data[i]);
+        func(arr->data[i]);
     }
 }
 

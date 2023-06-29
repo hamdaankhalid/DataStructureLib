@@ -9,12 +9,12 @@ struct DynamicArray {
 };
 
 
-int newArray(struct DynamicArray* arr, unsigned int sizeOfElement);
+int dynamicArrayNew(struct DynamicArray* arr, unsigned int sizeOfElement);
 
-int addElement(struct DynamicArray* arr, void* element);
+int dynamicArrayAddElement(struct DynamicArray* arr, void* element);
 
-void removeElement(struct DynamicArray* arr, int index);
+void dynamicArrayRemoveByIdx(struct DynamicArray* arr, int index);
 
-void printData(struct DynamicArray* arr, void (*printElement)(void*));
+void dynamicArrayForEach(struct DynamicArray* arr, void (*func)(void*));
 
 #endif 
