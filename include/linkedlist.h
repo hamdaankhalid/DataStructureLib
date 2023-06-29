@@ -9,12 +9,17 @@ struct LinkedListNode {
 	struct LinkedListNode* next;
 };
 
-int linkedListAddToTail(struct LinkedListNode** head, struct LinkedListNode* node);
+struct LinkedList {
+	struct LinkedListNode* head;
+	struct LinkedListNode* tail;
+};
 
-int linkedListRemove(struct LinkedListNode** head, struct LinkedListNode* target, int (*comparator) (struct LinkedListNode*, struct LinkedListNode*));
+int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode* node);
 
-void linkedListDestroy(struct LinkedListNode** head);
+int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int (*comparator) (struct LinkedListNode*, struct LinkedListNode*));
 
-void linkedListForEach(struct LinkedListNode** head, void (*func) (struct LinkedListNode*));
+void linkedListDestroy(struct LinkedList* list);
+
+void linkedListForEach(struct LinkedList* list, void (*func) (struct LinkedListNode*));
 
 #endif 
