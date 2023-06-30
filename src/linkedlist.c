@@ -98,7 +98,6 @@ void linkedListDestroy(struct LinkedList* list) {
 	// each node is allocated and stored on the heap, we must go through the linked list destorying
 	// each of the nodes
 	linkedListForEach(list, destroyNode);
-	free(list->head);
 	list->head = NULL;
 	list->tail = NULL;
 }
