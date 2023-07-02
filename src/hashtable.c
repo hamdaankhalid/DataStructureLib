@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <linkedlist.h>
 #include "hashtable.h"
+#include <string.h>
 
-int hashtableNew(struct Hashtable* target, int (*hasher) (void*)) {
+int hashTableNew(struct Hashtable* target, int (*hasher) (void*), int (*comparer) (void*, void*)) {
 	// create the linkedlist on heap for buckets
 	target->buckets = malloc(INITIAL_HASHTABLE * sizeof(struct LinkedList*));
 	if (target->buckets == NULL) {
+		printf("Failed bucket of linked list pointer allocations");
 		return -1;
 	}
 
@@ -17,6 +19,8 @@ int hashtableNew(struct Hashtable* target, int (*hasher) (void*)) {
 	target->capacity = INITIAL_HASHTABLE;
 	target->occupied = 0;
 	target->hasher = hasher;
+	target->comparer = comparer;
+	return 0;
 }
 
 int hashTableDestroy(struct Hashtable *table) {
@@ -78,7 +82,8 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 		}
 	}
 
-	int index = table->hasher((void*)element) % table->capacity;
+	int index = table->hasher((void*)element->key) % table->capacity;
+
 	if (table->buckets[index] == NULL) {
 		table->buckets[index] = malloc(sizeof(struct LinkedList));
 	}
@@ -92,9 +97,20 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 
 int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* target) {
 	// hash key and get the linkedlist
+	int index = table->hasher(key) % table->capacity;
+
+	struct LinkedList* chain = table->buckets[index];
 	// find the linkedlist based on key
+	struct LinkedListNode* current = chain->head;
+	while (current != NULL) {
+		if (table->comparer(current->key, key) == 0) {
+			memcpy(target, current, sizeof(struct LinkedListNode));
+		return 0;
+		}
+		current = current->next;
+	}
 	// if it exists copy the data to target
-	return 0;
+	return -1;
 }
 
 int hashTableDelete(struct Hashtable* table, void* key) {
