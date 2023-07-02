@@ -1,20 +1,20 @@
 # ifndef HASHTABLE_H
 # define HASHTABLE_H
 
-# include <linkedlist.h>
+# include "linkedlist.h"
 
 # define INITIAL_HASHTABLE 31
 # define OCCUPANCY_THRESHOLD 0.7
 
 struct Hashtable {
 	// buckets are an array of linkedlists
-	LinkedList** buckets;
+	struct LinkedList** buckets;
 	unsigned int capacity;
 	unsigned int occupied;
 	int (*hasher) (void*);
 };
 
-int hashTableNew(struct Hashtable* target, unsigned int capacity, unsigned int occupied, int (*hasher) (void*));
+int hashTableNew(struct Hashtable* target, int (*hasher) (void*));
 
 int hashTableDestroy(struct Hashtable* table);
 

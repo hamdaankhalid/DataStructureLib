@@ -33,7 +33,6 @@ int main() {
 		NULL,
 	};
 
-
 	int k2 = 8;
 	int v2 = 9;
 
@@ -69,6 +68,7 @@ int main() {
 	}
 
 	
+	printf("%p \n", n1.next);
 	success = linkedListAddToTail(&list, &n3);
 	
 	if (success != 0) {
@@ -102,6 +102,23 @@ int main() {
 	linkedListRemove(&list, &n3, customIntIntNodeCompare);
 
 	linkedListForEach(&list, printIntIntNode);
+	
+	printf("Adding n1, n2, n3 all back \n");
+
+	linkedListAddToTail(&list, &n1);
+	linkedListAddToTail(&list, &n2);
+	linkedListAddToTail(&list, &n3);
+
+	linkedListForEach(&list, printIntIntNode);
+	
+	printf("Performing pop based traversal \n");
+
+	struct LinkedListNode* popped;
+	while(!linkedListIsEmpty(&list)) {
+		popped = linkedListPopLast(&list);
+		printIntIntNode(popped);
+		linkedListDestroyNode(popped);
+	}	
 
 	linkedListDestroy(&list);
 }

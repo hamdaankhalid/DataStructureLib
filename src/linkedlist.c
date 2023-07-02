@@ -2,6 +2,7 @@
 #include <linkedlist.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 # define EXIT_IF_MALLOC_FAIL(d) \
 	if (d == NULL) { \
@@ -9,11 +10,40 @@
         return -1; \
 	}
 
-void destroyNode(struct LinkedListNode* node) {
+void linkedListDestroyNode(struct LinkedListNode* node) {
 	free(node->key);
 	free(node->value);
 	free(node);
 }
+
+bool linkedListIsEmpty(struct LinkedList* list) {
+	return list->head == NULL;
+}
+
+
+struct LinkedListNode* linkedListPopLast(struct LinkedList* list) {
+	struct LinkedListNode* previous = NULL;
+	struct LinkedListNode* current = list->head;	
+
+	if (current == NULL) {
+		return NULL;
+	}
+
+	while (current->next != NULL) {
+		previous = current;
+		current = current->next;
+	}
+	
+	if (previous == NULL) {
+		list->head = NULL;	
+	} else {
+		previous->next = NULL;
+	}
+
+	list->tail = previous;
+	return current;
+}
+
 
 // this method expects the user to have allocated the memory for the node on stack.
 int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
@@ -65,7 +95,7 @@ int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int
 	
 	// removing the head when only one node in list
 	if (previous == NULL && current == list->tail) {
-			destroyNode(current);
+			linkedListDestroyNode(current);
 			list->tail = NULL;
 			list->head = NULL; 
 			printf("single node list, node removed successfully \n");
@@ -76,7 +106,7 @@ int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int
 	// removing the first node but more than one node exists
 	if (previous == NULL) {
 		struct LinkedListNode* newHead = current->next;
-		destroyNode(current);
+		linkedListDestroyNode(current);
 		list->head = newHead; 
 		printf("target node was the head of list, successfully removed \n");
 		return 0;
@@ -88,7 +118,7 @@ int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int
 		list->tail = afterTarget;
 	}
 
-	destroyNode(current);
+	linkedListDestroyNode(current);
 	previous->next = afterTarget;
 	printf("target node successfully removed \n");
 	return 0;	
@@ -97,7 +127,7 @@ int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int
 void linkedListDestroy(struct LinkedList* list) {
 	// each node is allocated and stored on the heap, we must go through the linked list destorying
 	// each of the nodes
-	linkedListForEach(list, destroyNode);
+	linkedListForEach(list, linkedListDestroyNode);
 	list->head = NULL;
 	list->tail = NULL;
 }

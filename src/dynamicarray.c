@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <dynamicarray.h>
 
 int dynamicArrayNew(struct DynamicArray* arr, unsigned int sizeOfElement) {
@@ -70,8 +71,6 @@ void dynamicArrayRemoveByIdx(struct DynamicArray* arr, int index) {
         }
     }
 }
-
-// slice and splice?
 
 void dynamicArrayForEach(struct DynamicArray* arr, void (*func)(void*)) {
     for (int i = 0; i < arr->occupied; i++) {
