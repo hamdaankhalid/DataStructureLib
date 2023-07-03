@@ -23,7 +23,7 @@ struct LinkedList {
 int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode* node);
 
 // The method is used to remove a linkedlist element if you already know the data in it.
-int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int (*comparator) (struct LinkedListNode*, struct LinkedListNode*));
+int linkedListRemove(struct LinkedList* list, bool (*filter) (struct LinkedListNode*)); 
 
 // destroys only the internal data, the invoker frees the list if on heap.
 // If not on heap, we let the stack take care of it.

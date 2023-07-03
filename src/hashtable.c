@@ -105,7 +105,7 @@ int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* targ
 	while (current != NULL) {
 		if (table->comparer(current->key, key) == 0) {
 			memcpy(target, current, sizeof(struct LinkedListNode));
-		return 0;
+			return 0;
 		}
 		current = current->next;
 	}
@@ -113,8 +113,19 @@ int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* targ
 	return -1;
 }
 
+
+int comparer(struct Hashtable* table, struct LinkedListNode* a, struct LinkedListNode* b) {
+		
+}
+
 int hashTableDelete(struct Hashtable* table, void* key) {
 	// hash key and find the linkedlist
-	// call delete
-	return 0;
+	int index = table->hasher(key) % table->capacity;
+
+	struct LinkedList* chain = table->buckets[index];
+
+	// use linkedListRemove function with filter to match keys here
+	
+	// if it exists copy the data to target
+	return -1;
 }

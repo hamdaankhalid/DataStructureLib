@@ -20,7 +20,6 @@ bool linkedListIsEmpty(struct LinkedList* list) {
 	return list->head == NULL;
 }
 
-
 struct LinkedListNode* linkedListPopLast(struct LinkedList* list) {
 	struct LinkedListNode* previous = NULL;
 	struct LinkedListNode* current = list->head;	
@@ -77,51 +76,37 @@ int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
     return 0;
 }
 
-int linkedListRemove(struct LinkedList* list, struct LinkedListNode* target, int (*comparator) (struct LinkedListNode*, struct LinkedListNode*)) {
+int linkedListRemove(struct LinkedList* list, bool (*filter) (struct LinkedListNode*)){
 	// iterate till you find the target while keeping track of previous and current.
 	struct LinkedListNode* previous = NULL;
 	struct LinkedListNode* current = list->head;
 	
-	while(current != NULL && comparator(current, target) != 0) {
-		previous = current;
-		current = current->next;	
-	}
+	int removed = 0;
+	while (current != NULL) {
+		if (filter(current)) {
+			// handle the removal of current node
+			struct LinkedListNode* next = current->next;
+			if (previous != NULL) {
+				previous->next = next;
+			} else {
+				list->head = next;
+			}
 
-	// completed iteration without target
-	if (current == NULL) {
-		printf("target node not found \n");
-		return -1;
+			if (current->next == NULL) {
+				list->tail = previous;
+			}
+
+			linkedListDestroyNode(current);
+			removed++;
+			current = next;
+		} else {
+			previous = current;
+			current = current->next;	
+		}
 	}
 	
-	// removing the head when only one node in list
-	if (previous == NULL && current == list->tail) {
-			linkedListDestroyNode(current);
-			list->tail = NULL;
-			list->head = NULL; 
-			printf("single node list, node removed successfully \n");
-
-			return 0;
-	}
-
-	// removing the first node but more than one node exists
-	if (previous == NULL) {
-		struct LinkedListNode* newHead = current->next;
-		linkedListDestroyNode(current);
-		list->head = newHead; 
-		printf("target node was the head of list, successfully removed \n");
-		return 0;
-	}
-
-	struct LinkedListNode* afterTarget = current->next;	
-	// removing the last node
-	if (current == list->tail) {
-		list->tail = afterTarget;
-	}
-
-	linkedListDestroyNode(current);
-	previous->next = afterTarget;
-	printf("target node successfully removed \n");
-	return 0;	
+	// return number of nodes removed
+	return removed;
 }
 
 void linkedListDestroy(struct LinkedList* list) {

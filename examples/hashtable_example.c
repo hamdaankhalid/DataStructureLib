@@ -75,7 +75,6 @@ int main() {
 
 	printStrIntNode(getter);
 	
-
 	// free it all up
 	hashTableDestroy(&strInttable);
 

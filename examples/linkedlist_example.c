@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <linkedlist.h>
+#include <stdbool.h>
 
-int customIntIntNodeCompare(struct LinkedListNode* a, struct LinkedListNode* b) {
-	int k1 = *((int*)a->key);
-	int k2 = *((int*)b->key);
 
-	int v1 = *((int*)a->value);
-	int v2 = *((int*)b->value);
+int removals[3] = {4, 8, 9};
 
-	return k1==k2 && v1==v2 ? 0 : 1;
+bool filterRemove(struct LinkedListNode* a) {
+	int castedKey = *((int*)a->key);
+	return removals[0] == castedKey || removals[1] == castedKey || removals[2] == castedKey;
 }
 
 void printIntIntNode(struct LinkedListNode* node) {
@@ -19,6 +18,7 @@ void printIntIntNode(struct LinkedListNode* node) {
 }
 
 int main() {
+
 	struct LinkedList list = {
 		NULL, NULL
 	};
@@ -78,36 +78,16 @@ int main() {
 	
 	linkedListForEach(&list, printIntIntNode);
 
-	printf("Removing n2 \n");
+	printf("Removing nodes via filter \n");
 
-	linkedListRemove(&list, &n2, customIntIntNodeCompare);
-
-	linkedListForEach(&list, printIntIntNode);
-
-	printf("Removing n1 \n");
-
-	linkedListRemove(&list, &n1, customIntIntNodeCompare);
-
-	linkedListForEach(&list, printIntIntNode);
-
-
-	printf("Removing n1 when already not there! \n");
-
-	linkedListRemove(&list, &n1, customIntIntNodeCompare);
-
-	linkedListForEach(&list, printIntIntNode);
-
-	printf("Removing n3 \n");
-
-	linkedListRemove(&list, &n3, customIntIntNodeCompare);
+	linkedListRemove(&list, filterRemove); 
 
 	linkedListForEach(&list, printIntIntNode);
 	
-	printf("Adding n1, n2, n3 all back \n");
+	printf("Adding n1 and n2 back \n");
 
 	linkedListAddToTail(&list, &n1);
 	linkedListAddToTail(&list, &n2);
-	linkedListAddToTail(&list, &n3);
 
 	linkedListForEach(&list, printIntIntNode);
 	
