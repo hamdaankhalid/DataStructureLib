@@ -43,31 +43,23 @@ int hashTableDestroy(struct Hashtable *table) {
 	table->occupied = 0;
 }
 
-int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
-	double occupancyLoad = table->occupied/table->capacity;
-	// rehash all existing key value pairs after resizing the underlying array
-	if (occupancyLoad >= OCCUPANCY_THRESHOLD) {
-		printf("Scale up internal data struture \n");
-
-		// collect and redistribute the nodes from existing not null buckets that contain the linked list.
-		struct LinkedList collection= { NULL, NULL };
-		
-		printf("Current internal array is of size %d \n", table->capacity);
-		for (int i = 0; i < table->capacity ; i++) {
-			if (table->buckets[i] == NULL) {
+int collect(struct LinkedList* collection, int currentCapacity, struct LinkedList** existingBuckets) {
+		for (int i = 0; i < currentCapacity; i++) {
+			if (existingBuckets[i] == NULL) {
 				printf("Bucket at %d is empty \n", i);
 				continue;
 			}
 			
 			printf("Bucket at %d is occupied \n", i);
-			struct LinkedList* list = table->buckets[i];
+			struct LinkedList* list = existingBuckets[i];
 
 			while (!linkedListIsEmpty(list)) {
 				struct LinkedListNode* dataNode = linkedListPopLast(list);
-				int added = linkedListAddToTail(&collection, dataNode); 
+				int added = linkedListAddToTail(collection, dataNode); 
 				if (added != 0) {
 					return -1;
 				}
+
 				// linkedlist node can be destroyed, it has already been popped off and the data is copied into our dynamic array
 				linkedListDestroyNode(dataNode);
 			}
@@ -76,23 +68,14 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 			linkedListDestroy(list);
 			printf("internal array destroyed \n");
 		}
-		
-		printf("redistribution stage in scale up started \n");
-	
-		// increase size of our buckets to double
-		struct LinkedList** newData = realloc(table->buckets, table->capacity *  2 * sizeof (struct LinkedList*));
-		for (int i = table->capacity; i < table->capacity*2; i++) {
-			newData[i] = NULL;
-		}
-		table->buckets = newData;
 
-		EXIT_IF_MALLOC_FAIL(newData);
-		table->capacity *= 2;
-	
-		printf("Internal array doubled in size to be %d \n", table->capacity);
+		return 0;
+}
+
+int redistribute(struct Hashtable* table, struct LinkedList* collection) {
 		// at this point we have collected all our nodes and we want have enough buckets
 		// now we begin redistribution
-		struct LinkedListNode* rehashCandidate = linkedListPopLast(&collection);
+		struct LinkedListNode* rehashCandidate = linkedListPopLast(collection);
 		while (rehashCandidate != NULL) {
 			int index = table->hasher((void*)rehashCandidate->key) % table->capacity;
 			printf("node ");
@@ -107,10 +90,51 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 			if (added != 0) {
 				return -1;	
 			}
-			rehashCandidate = linkedListPopLast(&collection);
+			rehashCandidate = linkedListPopLast(collection);
+		}
+		
+		return 0;
+}
+
+int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
+	double occupancyLoad = table->occupied/table->capacity;
+	// rehash all existing key value pairs after resizing the underlying array
+	if (occupancyLoad >= OCCUPANCY_THRESHOLD) {
+		printf("Scale up internal data struture \n");
+
+		// collect and redistribute the nodes from existing not null buckets that contain the linked list.
+		struct LinkedList collection= { NULL, NULL };
+		
+		printf("Current internal array is of size %d \n", table->capacity);
+		int collected = collect(&collection, table->capacity, table->buckets);	
+		if (collected != 0) {
+			printf("collection pre-redistribution failed \n");
+			return -1;
+		}
+	
+		printf("redistribution stage in scale up started \n");
+	
+		// increase size of our buckets to double
+		struct LinkedList** newData = realloc(table->buckets, table->capacity *  2 * sizeof (struct LinkedList*));
+		EXIT_IF_MALLOC_FAIL(newData);
+		
+		for (int i = 0; i < table->capacity*2; i++) {
+			newData[i] = NULL;
+		}
+		table->buckets = newData;
+		table->capacity *= 2;
+	
+		printf("Internal array doubled in size to be %d \n", table->capacity);
+		// at this point we have collected all our nodes and we want have enough buckets
+		// now we begin redistribution
+		int redistributedSuccess = redistribute(table, &collection);
+		if (redistributedSuccess != 0) {
+			printf("failed redistribution stage \n");
+			return -1;
 		}
 	}
 
+	// add the new element
 	int index = table->hasher((void*)element->key) % table->capacity;
 	printf("Node ");
 	table->printNode(element);
@@ -130,13 +154,11 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* target) {
 	// hash key and get the linkedlist
 	int index = table->hasher(key) % table->capacity;
-	printf("Get Node: Checking if node is present at %d \n", index);
 
 	struct LinkedList* chain = table->buckets[index];
 	// find the linkedlist based on key
 	struct LinkedListNode* current = chain->head;
 	while (current != NULL) {
-		table->printNode(current);
 		if (table->comparer(current->key, key)) {
 			memcpy(target, current, sizeof(struct LinkedListNode));
 			return 0;
@@ -157,14 +179,42 @@ int hashTableDelete(struct Hashtable* table, void* key) {
 
 	// use linkedListRemove function with filter to match keys here
 	int removed = linkedListRemove(chain, table->deleteClosure);	
+
 	if (removed > 0) {
 		table->occupied -= removed;
 		
 		double occupancyLoad = table->occupied/table->capacity;
 		// rehash all existing key value pairs after resizing the underlying array
 		if (occupancyLoad < OCCUPANCY_THRESHOLD) {
-			// TODO: DOWNSIZE
-
+			struct LinkedList collection= { NULL, NULL };
+			
+			printf("Current internal array is of size %d \n", table->capacity);
+			int collected = collect(&collection, table->capacity, table->buckets);	
+			if (collected != 0) {
+				printf("collection pre-redistribution failed \n");
+				return -1;
+			}
+		
+			printf("redistribution stage in scale down started \n");
+						
+			// decrease size of our buckets to half
+			struct LinkedList** newData = realloc(table->buckets, (table->capacity / 2) * sizeof (struct LinkedList*));
+			EXIT_IF_MALLOC_FAIL(newData);
+			
+			for (int i = 0; i < table->capacity/2; i++) {
+				newData[i] = NULL;
+			}
+			table->buckets = newData;
+			table->capacity /= 2;
+		
+			printf("Internal array halfed in size to be %d \n", table->capacity);
+			// at this point we have collected all our nodes and we want have enough buckets
+			// now we begin redistribution
+			int redistributedSuccess = redistribute(table, &collection);
+			if (redistributedSuccess != 0) {
+				printf("failed redistribution stage \n");
+				return -1;
+			}
 		}
 	}
 
