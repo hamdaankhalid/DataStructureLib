@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include <linkedlist.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include <commontypes.h>
+#include <linkedlist.h>
 
 
-int removals[3] = {4, 8, 9};
-
-bool filterRemove(struct LinkedListNode* a) {
-	int castedKey = *((int*)a->key);
-	return removals[0] == castedKey || removals[1] == castedKey || removals[2] == castedKey;
+bool filterRemove(void* fixedKey, void* variableKey) {
+	return strcmp((char*) fixedKey, (char*) variableKey) == 0;
 }
 
 void printIntIntNode(struct LinkedListNode* node) {
@@ -80,7 +80,14 @@ int main() {
 
 	printf("Removing nodes via filter \n");
 
-	linkedListRemove(&list, filterRemove); 
+	struct DeleteFilterClosure filterClosure;
+	filterClosure.filter = filterRemove;
+	filterClosure.captured = n1.key;
+
+	linkedListRemove(&list, &filterClosure); 
+
+	filterClosure.captured = n2.key;
+	linkedListRemove(&list, &filterClosure); 
 
 	linkedListForEach(&list, printIntIntNode);
 	

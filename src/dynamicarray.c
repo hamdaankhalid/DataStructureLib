@@ -3,21 +3,14 @@
 #include <string.h>
 
 #include <dynamicarray.h>
+#include <commontypes.h>
 
 int dynamicArrayNew(struct DynamicArray* arr, unsigned int sizeOfElement) {
-    if (!arr) {
-        printf("Failed to allocate memory while creating the array\n");
-        return -1;
-    }
-
     arr->sizeOfElement = sizeOfElement;
     arr->occupied = 0;
     arr->capacity = 8;
     arr->data = malloc(arr->capacity * sizeof(void*));
-    if (!arr->data) {
-        printf("Failed to allocate memory for internal array\n");
-        return -1;
-    }
+	EXIT_IF_MALLOC_FAIL(arr->data);
 
 	return 0;
 }
@@ -25,19 +18,14 @@ int dynamicArrayNew(struct DynamicArray* arr, unsigned int sizeOfElement) {
 int dynamicArrayAddElement(struct DynamicArray* arr, void* element) {
     if (arr->occupied == arr->capacity) {
         void** newData = realloc(arr->data, arr->capacity * 2 * sizeof(void*));
-        if (!newData) {
-            printf("Failed to resize the array\n");
-            return -1;
-        }
+		EXIT_IF_MALLOC_FAIL(newData);
+
         arr->data = newData;
         arr->capacity *= 2;
     }
 
     arr->data[arr->occupied] = malloc(arr->sizeOfElement);
-    if (!arr->data[arr->occupied]) {
-        printf("Failed to allocate memory for element\n");
-        return -1;
-    }
+	EXIT_IF_MALLOC_FAIL(arr->data[arr->occupied]);
 
     memcpy(arr->data[arr->occupied], element, arr->sizeOfElement);
 

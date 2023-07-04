@@ -3,12 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
-# define EXIT_IF_MALLOC_FAIL(d) \
-	if (d == NULL) { \
-        fprintf(stderr, "Error allocating memory for new node to linkedlist\n"); \
-        return -1; \
-	}
+#include <commontypes.h>
 
 void linkedListDestroyNode(struct LinkedListNode* node) {
 	free(node->key);
@@ -76,14 +71,14 @@ int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
     return 0;
 }
 
-int linkedListRemove(struct LinkedList* list, bool (*filter) (struct LinkedListNode*)){
+int linkedListRemove(struct LinkedList* list, struct DeleteFilterClosure* filterClosure) { 
 	// iterate till you find the target while keeping track of previous and current.
 	struct LinkedListNode* previous = NULL;
 	struct LinkedListNode* current = list->head;
 	
 	int removed = 0;
 	while (current != NULL) {
-		if (filter(current)) {
+		if (filterClosure->filter(filterClosure->captured, current->key)) {
 			// handle the removal of current node
 			struct LinkedListNode* next = current->next;
 			if (previous != NULL) {

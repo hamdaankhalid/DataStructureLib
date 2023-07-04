@@ -2,14 +2,13 @@
 #include <linkedlist.h>
 #include "hashtable.h"
 #include <string.h>
+#include <stdbool.h>
+#include <commontypes.h>
 
-int hashTableNew(struct Hashtable* target, int (*hasher) (void*), int (*comparer) (void*, void*)) {
+int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool (*keyComparer) (void*, void*)) {
 	// create the linkedlist on heap for buckets
 	target->buckets = malloc(INITIAL_HASHTABLE * sizeof(struct LinkedList*));
-	if (target->buckets == NULL) {
-		printf("Failed bucket of linked list pointer allocations");
-		return -1;
-	}
+	EXIT_IF_MALLOC_FAIL(target->buckets);
 
 	for (int i = 0; i < INITIAL_HASHTABLE; i++) {
 		target->buckets[i] = NULL; // By setting the pointers as null explicily we
@@ -19,7 +18,13 @@ int hashTableNew(struct Hashtable* target, int (*hasher) (void*), int (*comparer
 	target->capacity = INITIAL_HASHTABLE;
 	target->occupied = 0;
 	target->hasher = hasher;
-	target->comparer = comparer;
+	target->comparer = keyComparer;
+
+	target->deleteClosure = malloc(sizeof (struct DeleteFilterClosure));
+	EXIT_IF_MALLOC_FAIL(target->deleteClosure);
+
+	target->deleteClosure->filter = target->comparer;
+
 	return 0;
 }
 
@@ -91,7 +96,7 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 	if (added != 0) {
 		return -1;	
 	}
-
+	table->occupied++;
 	return 0;
 }
 
@@ -103,7 +108,7 @@ int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* targ
 	// find the linkedlist based on key
 	struct LinkedListNode* current = chain->head;
 	while (current != NULL) {
-		if (table->comparer(current->key, key) == 0) {
+		if (table->comparer(current->key, key)) {
 			memcpy(target, current, sizeof(struct LinkedListNode));
 			return 0;
 		}
@@ -113,19 +118,25 @@ int hashTableGet(struct Hashtable* table, void* key, struct LinkedListNode* targ
 	return -1;
 }
 
-
-int comparer(struct Hashtable* table, struct LinkedListNode* a, struct LinkedListNode* b) {
-		
-}
-
 int hashTableDelete(struct Hashtable* table, void* key) {
 	// hash key and find the linkedlist
 	int index = table->hasher(key) % table->capacity;
 
 	struct LinkedList* chain = table->buckets[index];
+	
+	table->deleteClosure->captured = key;
 
 	// use linkedListRemove function with filter to match keys here
-	
-	// if it exists copy the data to target
-	return -1;
+	int removed = linkedListRemove(chain, table->deleteClosure);	
+	if (removed > 0) {
+		table->occupied -= removed;
+		
+		double occupancyLoad = table->occupied/table->capacity;
+		// rehash all existing key value pairs after resizing the underlying array
+		if (occupancyLoad < OCCUPANCY_THRESHOLD) {
+			// TODO: DOWNSIZE
+		}
+	}
+
+	return removed;
 }

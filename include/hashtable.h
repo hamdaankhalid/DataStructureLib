@@ -11,11 +11,12 @@ struct Hashtable {
 	struct LinkedList** buckets;
 	unsigned int capacity;
 	unsigned int occupied;
+	struct DeleteFilterClosure* deleteClosure;
 	int (*hasher) (void*);
-	int (*comparer) (struct LinkedListNode*, struct LinkedListNode*); // create a function that can compare 2 keys and returns 0 if equal, and -1 if not
+	bool (*comparer) (struct LinkedListNode*, struct LinkedListNode*); // create a function that can compare 2 keys and returns 0 if equal, and -1 if not
 };
 
-int hashTableNew(struct Hashtable* target, int (*hasher) (void*), int(*comparer) (void*, void*));
+int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool(*comparer) (void*, void*));
 
 int hashTableDestroy(struct Hashtable* table);
 

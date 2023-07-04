@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-# include <linkedlist.h>
-# include <hashtable.h>
 #include <string.h>
+#include <stdbool.h>
+
+#include <commontypes.h>
+# include <hashtable.h>
 
 // djb2 Algorithm
 int strHasher(void* input) {
@@ -17,8 +19,8 @@ int strHasher(void* input) {
 	return hash;
 }
 
-int customCmp(void* a, void* b) {
-	return strcmp((char*)a, (char*)b);
+bool customCmp(void* a, void* b) {
+	return strcmp(a, b) == 0;
 }
 
 void printStrIntNode(struct LinkedListNode node) {
@@ -72,9 +74,28 @@ int main() {
 	if (found != 0) {
 		return -1;
 	}
-
 	printStrIntNode(getter);
 	
+	int removed = hashTableDelete(&strInttable, (void*) "abc");
+	if (removed == 0) {
+		printf("Delete failed!");
+		return -1;
+	}
+
+	printf("node with key abc removed \n");
+	
+	found = hashTableGet(&strInttable, (void *) "abc", &getter);
+	if (found == 0) {
+		printf("Shouldn't find anything but it did...wtf");
+		return -1;
+	}
+	
+	found = hashTableGet(&strInttable, (void *) "cat", &getter);
+	if (found != 0) {
+		return -1;
+	}
+	printStrIntNode(getter);
+
 	// free it all up
 	hashTableDestroy(&strInttable);
 

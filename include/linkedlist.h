@@ -2,14 +2,7 @@
 #define LINKEDLIST_H
 
 #include <stdbool.h>
-
-struct LinkedListNode {
-	unsigned int sizeOfKey;
-	unsigned int sizeOfValue;
-	void* key;
-	void* value;
-	struct LinkedListNode* next;
-};
+#include "commontypes.h"
 
 // During initialization the user may set the 2 pointers
 // to null. The first call to linkedListAddToTail will take care of setting them to addresses on the heap
@@ -23,7 +16,7 @@ struct LinkedList {
 int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode* node);
 
 // The method is used to remove a linkedlist element if you already know the data in it.
-int linkedListRemove(struct LinkedList* list, bool (*filter) (struct LinkedListNode*)); 
+int linkedListRemove(struct LinkedList* list, struct DeleteFilterClosure* filterClosure); 
 
 // destroys only the internal data, the invoker frees the list if on heap.
 // If not on heap, we let the stack take care of it.
