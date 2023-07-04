@@ -2,6 +2,7 @@
 # define COMMONTYPES_H
 
 # include <stdbool.h>
+# include <stdio.h>
 
 // Just a quick macro to handle malloc conditional error handling
 # define EXIT_IF_MALLOC_FAIL(d) \

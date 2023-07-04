@@ -1,9 +1,10 @@
 # ifndef HASHTABLE_H
 # define HASHTABLE_H
 
+#include "commontypes.h"
 # include "linkedlist.h"
 
-# define INITIAL_HASHTABLE 31
+# define INITIAL_HASHTABLE 2
 # define OCCUPANCY_THRESHOLD 0.7
 
 struct Hashtable {
@@ -14,9 +15,10 @@ struct Hashtable {
 	struct DeleteFilterClosure* deleteClosure;
 	int (*hasher) (void*);
 	bool (*comparer) (struct LinkedListNode*, struct LinkedListNode*); // create a function that can compare 2 keys and returns 0 if equal, and -1 if not
+	void (*printNode) (struct LinkedListNode*);
 };
 
-int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool(*comparer) (void*, void*));
+int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool(*comparer) (void*, void*), void (*printNode) (struct LinkedListNode*));
 
 int hashTableDestroy(struct Hashtable* table);
 

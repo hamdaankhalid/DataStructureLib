@@ -41,7 +41,7 @@ struct LinkedListNode* linkedListPopLast(struct LinkedList* list) {
 
 // this method expects the user to have allocated the memory for the node on stack.
 int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
-    struct LinkedListNode* newNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
+    struct LinkedListNode* newNode = malloc(sizeof(struct LinkedListNode));
 	EXIT_IF_MALLOC_FAIL(newNode);
 
 	newNode->key = malloc(node->sizeOfKey);
@@ -53,7 +53,7 @@ int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
     // Copy data from node to newNode
     memcpy(newNode->key,node->key, node->sizeOfKey);
     memcpy(newNode->value,node->value, node->sizeOfValue);
-
+	
 	newNode->sizeOfKey = node->sizeOfKey;
 	newNode->sizeOfValue = node->sizeOfValue;
     newNode->next = NULL;
@@ -64,6 +64,8 @@ int linkedListAddToTail(struct LinkedList* list, struct LinkedListNode *node) {
 		list->tail = newNode;
         return 0;
     }
+	
+	printf("non-head node added \n");
 
 	list->tail->next = newNode;
 	list->tail = newNode;

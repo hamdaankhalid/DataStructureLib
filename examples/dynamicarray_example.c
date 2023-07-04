@@ -66,7 +66,7 @@ int main() {
     }
     free(strArr.data);
 
-
+	printf("Finished Successfully \n");
     return 0;
 }
 

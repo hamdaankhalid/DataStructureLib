@@ -108,4 +108,7 @@ int main() {
 	}	
 
 	linkedListDestroy(&list);
+
+	printf("Finished Successfully \n");
+	return 0;
 }
