@@ -4,10 +4,11 @@
 #include <string.h>
 #include <stdbool.h>
 #include <commontypes.h>
+#include <stdlib.h>
 
 int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool (*keyComparer) (void*, void*), void (*printNode) (struct LinkedListNode*)) {
 	// create the linkedlist on heap for buckets
-	target->buckets = malloc(INITIAL_HASHTABLE * sizeof(struct LinkedList*));
+	target->buckets =  malloc(INITIAL_HASHTABLE * sizeof(struct LinkedList*));
 	EXIT_IF_MALLOC_FAIL(target->buckets);
 
 	for (int i = 0; i < INITIAL_HASHTABLE; i++) {
@@ -31,7 +32,7 @@ int hashTableNew(struct Hashtable* target, int (*hasher) (void*), bool (*keyComp
 }
 
 int hashTableDestroy(struct Hashtable *table) {
-	for (int i = 0; i < table->capacity; i++) {
+	for (unsigned int i = 0; i < table->capacity; i++) {
 		if (table->buckets[i] != NULL) {
 			// destroy the linkedlist and explicitly free its memory.
 			linkedListDestroy(table->buckets[i]);
@@ -41,6 +42,7 @@ int hashTableDestroy(struct Hashtable *table) {
 	free(table->buckets);
 	table->capacity = 0;
 	table->occupied = 0;
+	return 0;
 }
 
 int collect(struct LinkedList* collection, int currentCapacity, struct LinkedList** existingBuckets) {
@@ -118,7 +120,7 @@ int hashTableSet(struct Hashtable* table, struct LinkedListNode* element) {
 		struct LinkedList** newData = realloc(table->buckets, table->capacity *  2 * sizeof (struct LinkedList*));
 		EXIT_IF_MALLOC_FAIL(newData);
 		
-		for (int i = 0; i < table->capacity*2; i++) {
+		for (unsigned int i = 0; i < table->capacity*2; i++) {
 			newData[i] = NULL;
 		}
 		table->buckets = newData;
@@ -201,7 +203,7 @@ int hashTableDelete(struct Hashtable* table, void* key) {
 			struct LinkedList** newData = realloc(table->buckets, (table->capacity / 2) * sizeof (struct LinkedList*));
 			EXIT_IF_MALLOC_FAIL(newData);
 			
-			for (int i = 0; i < table->capacity/2; i++) {
+			for (unsigned int i = 0; i < table->capacity/2; i++) {
 				newData[i] = NULL;
 			}
 			table->buckets = newData;

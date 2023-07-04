@@ -14,7 +14,7 @@ struct Hashtable {
 	unsigned int occupied;
 	struct DeleteFilterClosure* deleteClosure;
 	int (*hasher) (void*);
-	bool (*comparer) (struct LinkedListNode*, struct LinkedListNode*); // create a function that can compare 2 keys and returns 0 if equal, and -1 if not
+	bool (*comparer) (void*, void*); // create a function that can compare 2 keys and returns 0 if equal, and -1 if not
 	void (*printNode) (struct LinkedListNode*);
 };
 
