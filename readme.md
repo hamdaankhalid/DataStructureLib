@@ -1,3 +1,3 @@
 # Data structures Library
 
-- A library I intend to use for my applications when I code in C.
+- Common data structures implemented in C that we take for granted.
